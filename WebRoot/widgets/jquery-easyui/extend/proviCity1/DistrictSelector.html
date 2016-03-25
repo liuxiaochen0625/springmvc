@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>原始js三级联动</title>
+<script type="text/javascript" src="DistrictSelector.js"></script>
+</head>
+
+<body>
+<h2>效果</h2>
+<p>
+  <label for="select"></label>
+  省市区
+  <select name="select" id="p" style="width:100px;">
+  </select>
+  <select name="select" id="c" style="width:100px;">
+  </select>
+  <select name="select" id="a" style="width:100px;">
+  </select>
+</p>
+<p>省市
+  <select name="select" id="pp" style="width:100px;">
+  </select>
+  <select name="select" id="cc" style="width:100px;">
+  </select>
+</p>
+<p>
+  <input type="button" name="button" id="button" value="获取选中id" onclick="getselect('id')" />
+  <input type="button" name="button2" id="button2" value="获取选中值" onclick="getselect('value')"/>
+</p>
+<p>&nbsp;</p>
+<p>&nbsp; </p>
+<script type="text/javascript">
+	var cv=DistrictSelector.attach("p","c",'a');
+	//设置初始值
+	//cv.initSelectedCodes("110101");北京
+	cv.initSelectedCodes("140200");//大同市
+	//cv.initSelectedCodes("140225");//浑源县
+	
+	
+	var cv1=DistrictSelector.attach("pp","cc");
+	//cv1.initSelectedCodes("140000");//山西省
+	cv1.initSelectedCodes("140200");//大同市
+	function getselect(type){
+		if(type=='id'){
+			var values=cv1.getSelectedCodes();
+			alert(values);
+		}else{
+			var texts=cv1.getDivisionText(",");
+			alert(texts);
+		}
+	}
+</script>
+</body>
+</html>

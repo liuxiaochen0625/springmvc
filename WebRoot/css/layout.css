@@ -1,0 +1,27 @@
+*{font-size:12px; font-family:Tahoma,Verdana,微软雅黑,新宋体}
+body{}
+html{ SCROLLBAR-FACE-COLOR: #eff6fb; SCROLLBAR-HIGHLIGHT-COLOR: #B3C0C6; SCROLLBAR-SHADOW-COLOR: #B3C0C6; SCROLLBAR-3DLIGHT-COLOR: #eff6fb; SCROLLBAR-ARROW-COLOR:#B3C0C6; SCROLLBAR-TRACK-COLOR: #eff6fb; SCROLLBAR-DARKSHADOW-COLOR: #eff6fb; }
+body,table,tr,td,span,font{font-size:12px;}
+
+/**搜索框样式**/
+table.bt{background:#fff6e5;}
+a.blue{float:left;width:85px;color:#0160bc;text-indent:5px;}
+.under{color:#0160bc;text-decoration:underline;}
+.wd1{width:156px;height:17px;line-height:17px;margin:5px 0;}
+
+/**列表框样式**/
+table.newinfo{width:100%;border-collapse:collapse;}
+table.newinfo td{padding:0 5px;border:1px solid #ffc662;text-align:left;line-height:26px;color:#000;text-indent:10px;}
+table.newinfo tr.meter{height:35px;background:url(/images/tr.jpg) repeat-x;}
+table.ind td{text-indent:0;padding-left:15px;}
+
+/**表单样式**/
+.info{width:100%; background:#ffda9a;}
+.info td,.info th{height:23px;*height:17px; line-height:24px; }
+.info td{background:#fff; text-align:left;padding:3px 10px;}
+.info td.aleft{text-align:left;}
+.info td.prohead{background:#eaf3ff}
+.info th{color:#333; font-weight:bold; text-align:left; background:#eee;white-space:nowrap;}
+.info th p.gkxx{height:34px;width:150px;line-height:34px;padding:0 15px;background:url(/images/xx.png);text-align:center;}
+.info tr.overcolor td{background:#fcfbcc}
+.info td.prohead{background:#6AB4FF}

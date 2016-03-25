@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apexsoft.system.admin.dao.AdminUserMapper">
+    <!-- 根据用户名查询用户信息 -->
+    <select id="getAdminUserListByUserName" resultType="com.apexsoft.system.admin.entity.AdminUser">
+        select userID,userName,password,realName,phone,flag,operator,lastLoginTime,createTime
+        from admin_user
+        <where>
+           <if test="userName!=''">
+              and userName=#{userName}
+           </if>
+        </where>
+    </select>
+    
+    <!-- 查询用户总数 -->
+    <select id="getAdminUserCount" parameterType="java.util.Map" resultType="int">
+        select count(*) from admin_user
+        <where>
+            <if test="userName!='' and userName!=null">
+               and userName  like concat('%', #{userName}, '%')
+            </if>
+        </where>        
+    </select>
+    
+    <!-- 查询用户分页 -->
+    <select id="getAdminUserPage" parameterType="java.util.Map"  resultType="com.apexsoft.system.admin.entity.AdminUser">
+        select * from admin_user
+        <where>
+            <if test="userName!='' and userName!=null">
+               and userName  like concat('%', #{userName}, '%')
+            </if>
+        </where>
+        order by lastLoginTime desc
+        limit #{pageStart},#{pageEnd}
+    </select>
+</mapper>

@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>EasyUI单行可编辑数据表格</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+
+	<script type="text/javascript">
+		
+			//行编辑时添加逻辑
+			function sendNumChange(rowIndex){
+				var editors = $('#editOutProList').datagrid('getEditors', rowIndex);
+				var row = $('#editOutProList').datagrid('getRows')[rowIndex];
+				var atmEidtor = editors[0];
+				var sendNumeEidtor = editors[1];
+				sendNumeEidtor.target.bind('change', function(){
+					calculate();
+				});
+				function calculate(){
+					setTimeout(function(){
+						var atm = row.price*sendNumeEidtor.target.val();
+						//$('#editOutProList').datagrid('updateRow',{index:rowIndex,"row":row});
+						//$('#editOutProList').datagrid('refreshRow',rowIndex);
+						atmEidtor.target.val(atm);
+					}, 100);
+				}
+			}
+			
+			//列表
+			$(function() {
+				var lastIndex; //最后修改列
+				$('#editOutProList').datagrid({		
+					title:"EasyUI可编辑框",	
+					url:'datagridinput.json',			
+					iconCls : 'icon-edit',
+					nowrap : false,
+					striped : true,
+					collapsible : false,
+					pagination : false,
+					singleSelect : true,
+					rownumbers : true,
+					remoteSort : false,
+					pageList : [15, 20, 30, 50 ],
+					idField : 'outProdId',
+					// 复制、粘贴
+					onRowContextMenu:function(e, rowIndex, rowData){
+						e.preventDefault();
+						$("#editOutProList").datagrid("selectRow",rowIndex);
+						$('#mm').menu('show', {
+							left: e.pageX,
+							top: e.pageY
+						});   
+					},
+					onBeforeEdit: function(index, row){
+                        row.editing = true;
+                        $('#editOutProList').datagrid('refreshRow', index);
+                    }, 
+					onAfterEdit: function(index, row){
+                        row.editing = false;
+                        $('#editOutProList').datagrid('refreshRow', index);
+                    },
+					onCancelEdit: function(index, row){
+                        row.editing = false;
+                        $('#editOutProList').datagrid('refreshRow', index);
+                    },
+					columns:[[ 
+						{field:'outProdId',title:'outProdId',width:100,sortable:false,nowrap:true,hidden:true},
+						{field:'prodCode',title:'药品编码',width:100,sortable:false,nowrap:true},
+						{field:'commName',title:'通用名',width:100,sortable:false,nowrap:true},
+						{field:'prodName',title:'商品名',width:100,sortable:false,nowrap:true},
+						{field:'memberName',title:'生产厂家',width:100,sortable:false,nowrap:true},
+						{field:'listName',title:'挂牌单位',width:100,sortable:false,nowrap:true},
+						{field:'priceUnitName',title:'单位',width:100,sortable:false,nowrap:true},
+						{field:'detail',title:'备注',width:100,sortable:false,nowrap:true},
+						{field:'orderNum',title:'订购数量',width:50,sortable:false,nowrap:true},
+						{field:'price',title:'成交价',width:50,sortable:false,nowrap:true},
+						{field:'atm',title:'金额',width:50,sortable:false,nowrap:true,editor:'text'},
+						{field:'sendNum',title:'实发数量',width:100,sortable:false,nowrap:true,editor:"numberbox"},
+						{field:'passCode',title:'批号',width:100,sortable:false,nowrap:true,editor:{type:"text",options:{required:true}}},
+						{field:'limitDate',title:'有效期',width:100,sortable:false,nowrap:true,editor:"datebox"},
+						{field:'opt',title:'操  作',align:'center',width:130,
+							formatter : function(val, row,index) {
+								if (row.editing) {
+	                                var s = '<a href="#" onclick="doSubmit(' + index + ')">保存</a> ';
+	                                var c = '<a href="#" onclick="cancelrow(' + index + ')">取消</a>';
+	                                return s + c;
+	                            }
+	                            else {
+	                                var e = '<a href="#" onclick="editrow(' + index + ')">编辑</a> ';
+	                                var d = '<a href="#" onclick="delRow(' + index + ')">删除</a>';
+	                                return e + d;
+	                            }
+							}
+						}
+					]]
+				});
+			})
+			
+			var copyRow={};
+		
+			//复制
+			function copyRowFn(){
+				var t = {};
+				var te = $("#editOutProList").datagrid("getSelected");
+				for(var n in te){
+					t[n]=te[n];
+				}
+				//t.outProdId= "";
+				copyRow = t
+			}
+			//粘贴
+			function plastRow(){
+				if(!$.isEmptyObject(copyRow)){
+					var r = $("#editOutProList").datagrid("getSelected");
+					var rIndex = $("#editOutProList").datagrid("getRowIndex",r);
+					$("#editOutProList").datagrid("insertRow",{"index":rIndex+1,"row":copyRow});
+					copyRow={};
+				}else{
+					$.messager.alert("错误","请复制一条记录！",'error');
+				}
+				
+			}
+			
+			/**
+			 * 编辑
+			 * @param {Object} index
+			 */
+			function editrow(index){
+				$('#editOutProList').datagrid('beginEdit', index);
+				sendNumChange(index);
+			}
+			/**
+			 * 取消
+			 * @param {Object} index
+			 */
+			function cancelrow(index){
+                $('#editOutProList').datagrid('cancelEdit', index);
+            }
+			
+			/**
+			 * 删 除
+			 * @param {Object} rowIndex
+			 */
+			function delRow(rowIndex){
+				$.messager.confirm('系统提示','您确定要删除该信息吗？',function(btn){
+					if(btn){
+						$('#editOutProList').datagrid('deleteRow',rowIndex);
+					}
+				});
+			}
+			
+			/**
+			 * 生成提交数据，不同的业务需要重写此方法
+			 * @param {Object} index 编辑行
+			 */
+			function crateSumitData(index) {
+				var obj = $('#editOutProList').datagrid('getData').rows[index];//取到所有列
+				//其他需要传递后台的值
+				var outId = $("#outId").val();
+				var str = "";
+				for (var dd in obj) {//取出对象中的属性
+					var vStr = "";
+					if(dd != 'opt' && dd != 'orderProdId'){
+						vStr = "editOutProList[0]."+dd+"=" + obj[dd]+ "&" //拼接成对象数据字符串
+					}
+					str += vStr;
+				}
+				str+="outId="+outId;
+				return str ;
+			}
+			
+			
+			/**
+			 * 提交
+			 * @param {Object} index
+			 */
+			function doSubmit(index){
+				//结束编辑
+				$('#editOutProList').datagrid('endEdit',index);
+				//取到需要提交的值
+				var str =  crateSumitData(index);
+				//alert(str);
+				$.messager.alert("提示","验证已经通过了，可以通过拼接成的字符串进行ajax提交了",'info');
+				/*
+				$.ajax({
+					type : "post",//请求方式
+					url : "rul",//发送请求地址
+					data : str,
+					//请求成功后的回调函数有两个参数
+					success : function(data, textStatus) {
+						var d = $.parseJSON(data);
+						if(d.flag == 'T'){
+							//正确时操作
+						}else{
+							$.messager.alert("错误","发货单更新错误","error");
+						}
+					}
+				});
+				*/
+				
+				
+			}
+			
+		</script>
+</head>
+<body>
+	<h2>效果</h2>
+	<form name="editoutForm" id="addoutForm" method="post" action="" >
+		<input type="hidden" id="outId" value="DD20111127120000"/>
+			<table id="editOutProList" border="1" cellpadding="0" cellspacing="0" width="100%"></table>
+			<div id="mm" class="easyui-menu" style="width:120px;">  
+ 				<div id="copyRow" onclick="copyRowFn()">复制</div>  
+    			<div class="menu-sep"></div>  
+    			<div id="plastRow" onclick="plastRow()">粘贴</div>  
+			</div>
+			<br/>
+	</form>
+	<hr/>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.此功能主要用于在单行修改数据，并且允许对每条记录点击鼠标右键后进行复制和粘贴，并进行简单的输入验证和业务逻辑验证。此模块只做了简单的业务逻辑验证，所以使用时要根据自己的业务逻辑进行相应的方法重写<br/>
+	</p>
+	<p>
+		使用说明:<br/>
+		1.本功能是基于EasyUI进行的datagrid扩展，请参考EasyUI的datagrid使用方法，在此不做重复说明。<br/>
+		2.该模块的常用方法说明如下：<br/>
+		2.1 copyRowFn()为列复制<br/>
+		2.2 plastRow()为列粘贴<br/>
+		2.3 delRow()为列删除<br/>
+		2.4 editrow()为编辑<br/>
+		2.5 cancelrow()为取消编辑<br/>
+		2.6 sendNumChange()为编辑时修改实发数量而金额跟着变动<br/>
+		2.7 crateSumitData()为生成提交数据，不同的业务需要重写此方法<br/>
+		2.8 doSubmit()表单提交方法，不同的业务需要重写此方法
+</body>
+</html>

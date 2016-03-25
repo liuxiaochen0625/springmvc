@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security-3.1.xsd
+	">
+	
+	<!-- 设置不拦截资源过滤 -->
+	<security:http pattern="/common/**" security="none" />
+	<security:http pattern="/images/**" security="none" />
+	<security:http pattern="/css/**" security="none" />
+	<security:http pattern="/js/**" security="none" />
+	<security:http pattern="/widgets/**" security="none"/>
+	<security:http pattern="/psd/**" security="none"/>
+	<security:http pattern="/temp/**" security="none" />
+	<security:http pattern="/down/**" security="none" />
+	<!-- 定义springsecurity 默认的重定向地址，不拦截 -->
+	<security:http pattern="/favicon.ico" security="none"/>
+	
+	<!-- 登录页面不拦截 -->
+	<security:http pattern="/index.jsp" security="none"/>	     
+	
+	<!-- 当访问被拒绝时会转到403页面 -->
+	<security:http auto-config="true"> 
+	    <!-- 自定义无权访问异常处理机制 -->
+	    <security:access-denied-handler ref="myAccessDeniedHandler"/>	       
+	    <security:form-login login-page="/index.jsp" default-target-url="/login/loginSuccess/main.action"
+	        authentication-failure-url="/login/toLogin/login.action"/>
+	    <!-- 只有登录用户才可访问 -->    
+	    <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY" />     
+	    <!-- 会话管理(同一时间相同的用户只能有一个访问系统)，相同用户再次登录时，之前的会话失效-->
+	    <security:session-management>
+	        <security:concurrency-control max-sessions="1"/>
+	    </security:session-management>
+	    <!-- 退出 -->
+	    <security:logout invalidate-session="true" logout-url="/j_spring_security_logout" logout-success-url="/"/>
+	    <!-- 增加一个filter，这点与Acegi是不一样的，不能修改默认的filter了，这个filter位于FILTER_SECURITY_INTERCEPTOR之前 -->
+	    <security:custom-filter ref="mySecurityFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
+	</security:http>
+	
+	<!-- 未登录的切入点 (可分为移动设备和PC等，本次只配置了PC)
+	<bean id="myLoginUrlAuthenticationEntryPoint" class="com.apexsoft.system.security.MyLoginUrlAuthenticationEntryPoint">
+	    <constructor-arg name="loginFormUrl" value="/login/toLogin"/>
+	    <property name="useForword" value="false"/>
+	</bean>-->
+	
+	<!-- 一个自定义的filter，必须包含authenticationManager,accessDecisionManager,securityMetadataSource -->
+	<bean id="mySecurityFilter" class="com.apexsoft.system.security.MyFilterSecurityInterceptor">
+	    <!-- 用户拥有的权限 -->
+	    <property name="authenticationManager" ref="myAuthenticationManager"/>
+	    <!-- 用户是否用户所请求资源的权限 -->
+	    <property name="accessDecisionManager" ref="myAccessDecisionManager"/>
+	    <!-- 资源和权限的对应关系 -->
+	    <property name="securityMetadataSource" ref="mySecurityMetadataSource"/>
+	</bean>
+	
+	<!-- 注意能够为authentication-manager 设置alias别名   -->
+	<security:authentication-manager alias="myAuthenticationManager">
+	    <security:authentication-provider user-service-ref="userDetailsManager">
+	    </security:authentication-provider>
+	</security:authentication-manager>
+	
+	<!-- 用户详细信息管理：数据源，用户缓存（通过数据库管理用户，角色权限，资源） -->
+	<bean id="userDetailsManager" class="com.apexsoft.system.security.MyUserDetailsService"/>
+	
+	<!-- 访问决策器，决定某个用户具有的角色，是否有足够的权限去访问某个资源  -->
+	<bean id="myAccessDecisionManager" class="com.apexsoft.system.security.MyAccessDecisionManager"/>
+	
+	<!-- 资源数据定义，将所有的资源和权限对应关系建立起来，既定义某一资源可以被哪些角色去访问 -->
+	<bean id="mySecurityMetadataSource" class="com.apexsoft.system.security.MyInvocationSecurityMetadataSource"/>	    
+    <!-- 自定义无权访问异常处理 -->
+    <bean id="myAccessDeniedHandler" class="com.apexsoft.system.intercept.MyAccessDeniedHandler"/>
+    <!-- 定义上下文返回的消息的国际化。 -->
+    <bean id="messageSource"  class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+         <property name="basename" value="classpath:org/springframework/security/messages_zh_CN"/>
+    </bean>
+</beans>	

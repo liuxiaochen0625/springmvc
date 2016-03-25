@@ -1,0 +1,7 @@
+/application.properties
+/applicationContext-dao.xml
+/applicationContext-security.xml
+/applicationContext.xml
+/com/
+/log4j.properties
+/springmvc-servlet.xml

@@ -1,0 +1,93 @@
+-----创建权限系统相关表-----20131219
+-----用户表
+create table if not exists  ADMIN_USER(
+   userID int primary key auto_increment not null,
+   userName varchar(30),
+   password varchar(32),
+   realName varchar(30),
+   phone varchar(16),
+   flag smallint,
+   operator varchar(30),
+   lastLoginTime datetime,
+   createTime datetime  
+);
+-----角色表
+create table if not exists ADMIN_ROLE(
+   roleID int primary key auto_increment not null,
+   roleCode varchar(60),
+   roleName varchar(60),
+   operator varchar(30),
+   createTime datetime
+);
+----用户角色表
+create table if not exists ADMIN_USER_ROLE(
+   userRoleID int primary key auto_increment not null,
+   userID int,
+   roleID int
+);
+----菜单权限表
+create table if not exists ADMIN_MENU_AUTHORITY(
+   menuID int primary key auto_increment not null,
+   menuName varchar(60),
+   menuURL varchar(200),
+   menuLevel smallint,
+   parentMenuID int,
+   menuOrder int,
+   operator varchar(30),
+   updateTime datetime,
+   createTime datetime
+);
+----操作权限表(按钮权限表)
+create table if not exists ADMIN_OPERATOR_AUTHORITY(
+   operatorID int primary key auto_increment not null,
+   menuID int,
+   operatorCode varchar(200),
+   operatorName varchar(60),
+   operatorURL varchar(200)
+);
+----角色权限表
+create table if not exists ADMIN_ROLE_AUTHORITY(
+   roleAuthorityID int primary key auto_increment not null,
+   roleID int,
+   menuID int,
+   operatorCodes varchar(1000)
+);
+
+----插入一条用户数据
+insert into admin_user(userName,PASSWORD,realName,phone,flag,operator,lastLoginTime,createTime)
+values('jnzzl','zzl001','东方不败','15810658422',1,'admin',sysdate(),SYSDATE());
+insert into admin_role(roleCode,roleName,operator,createTime)
+values('ROLE_SUPERADMIN','超级管理员','admin',sysdate());
+insert into admin_role(roleCode,roleName,operator,createTime)
+values('ROLE_ADMIN','普通管理员','admin',sysdate());
+insert into admin_user_role(userID,roleID)
+values(1,1);
+
+insert into admin_menu_authority(menuName,menuURL,menuLevel,parentMenuID,menuOrder,operator,updateTime,createTime)
+values('系统管理','',1,-1,0,'admin',SYSDATE(),SYSDATE());
+insert into admin_menu_authority(menuName,menuURL,menuLevel,parentMenuID,menuOrder,operator,updateTime,createTime)
+values('用户管理','/user/userMng.action',2,1,3,'admin',SYSDATE(),SYSDATE());
+insert into admin_menu_authority(menuName,menuURL,menuLevel,parentMenuID,menuOrder,operator,updateTime,createTime)
+values('角色管理','/user/userMng.action',2,1,2,'admin',SYSDATE(),SYSDATE());
+insert into admin_menu_authority(menuName,menuURL,menuLevel,parentMenuID,menuOrder,operator,updateTime,createTime)
+values('菜单管理','/user/userMng.action',2,1,1,'admin',SYSDATE(),SYSDATE());
+insert into admin_role_authority(roleID,menuID)
+values(1,2);
+insert into admin_role_authority(roleID,menuID)
+values(1,3);
+insert into admin_role_authority(roleID,menuID)
+values(1,4);
+insert into admin_operator_authority(menuID,operatorCode,operatorName,operatorURL)
+values(2,'add','新增','/user/add.action');
+insert into admin_operator_authority(menuID,operatorCode,operatorName,operatorURL)
+values(2,'del','删除','/user/del.action');
+insert into admin_operator_authority(menuID,operatorCode,operatorName,operatorURL)
+values(2,'update','修改','/user/update.action');
+
+
+
+
+
+
+
+

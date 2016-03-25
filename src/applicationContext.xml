@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+	default-lazy-init="false">
+	
+	<description>spring公共配置</description>
+	<bean id="springContextHolder" class="com.apexsoft.system.intercept.MyApplicationContextAware" lazy-init="false"/>
+	
+	<!-- 激活@Required @Autowired -->
+	<context:annotation-config />
+	
+	<!-- 使用annotation 自动注册bean，并保证@Required,@Autowired的属性被注入 -->
+	<context:component-scan base-package="com.apexsoft.core,com.apexsoft.system">
+	     <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>		
+	
+	<!-- freemarker config -->
+	<bean id="freemarkerConfig" autowire="byType"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/ftl/" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="locale">zh_CN</prop>
+				<prop key="default_encoding">UTF-8</prop>
+				<prop key="template_update_delay">0</prop>
+				<prop key="number_format">0.##</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="classic_compatible">true</prop>
+				<prop key="template_exception_handler">ignore</prop>
+				<prop key="whitespace_stripping">true</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

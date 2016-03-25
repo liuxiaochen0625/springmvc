@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=uft-8" />
+		<title>easyui验证框架</title>
+		<!--EasyUI Start-->
+		<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+		<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+		<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+		<!--EasyUI end-->
+		<script type="text/javascript">
+			/**
+			*验证的缺点，不支持radio checkbox 的验证，不支持在validType直接加多个验证
+			*/
+			$.extend($.fn.validatebox.defaults.rules, {
+				CHS: {
+					validator: function (value, param) {
+						return /^[\u0391-\uFFE5]+$/.test(value);
+					},
+					message: '请输入汉字'
+				},
+				numberId:{
+					validator:function(value,param){
+						return /^[\u4e00-\u9fa50-9A-Za-z]*$/.test(value);
+					},
+					message: '证件号码格式错误'
+				}
+			});
+
+			
+				$.extend($.fn.validatebox.methods, {
+					remove:function(jq,param){
+						//console.error("ddd",$.data(jq[0], 'combo').combo);
+						var f = param?param:false;
+						if(f){
+							//动态combo
+							var v = $.data(jq[0], 'combo').combo.find('input.combo-text')[0];
+						}else{
+							var v = jq[0] ;
+						}
+						
+						if($.data(v,'validatebox')){
+						//console.error("ddd11111",$.data(v,'validatebox').options);
+							var tip = $.data(v, 'validatebox').tip;
+							if (tip){
+								tip.remove();
+							}
+							$(v).removeClass('validatebox-invalid');
+							$(v).removeClass('validatebox-text');
+							$(v).unbind('.validatebox');
+							$(v).removeData('validatebox');
+						}
+					}
+				});
+			
+
+			/*
+			$.extend($.fn.validatebox.methods, {
+				//验证删除的插件扩展
+				remove:function(jq){
+					var v = jq[0] ;
+					if($.data(v,'validatebox')){
+						$(v).removeClass('validatebox-invalid');
+						$(v).removeClass('validatebox-text');
+						$(v).unbind('.validatebox');
+						$(v).removeData('validatebox');
+					}
+					
+				}
+			});
+			*/
+
+
+
+
+			function yanzheng(){
+				$("#addValidate").validatebox({
+					required:true,
+					missingMessage:'这个是必须要的'
+				})
+			}
+			function yanzheng2(){
+				var state = $.data($("#addValidate2")[0], 'validatebox');
+				$("#addValidate2").validatebox({
+					required:true,
+					validType:'numberId'
+				})
+			}
+			
+		
+
+			function delyanzheng(){
+				/*destroy把元素和验证都一块删除,所以不符合逻辑
+				$("#addValidate").validatebox('destroy');
+				*/
+				//delRules('addValidate');
+				$("#addValidate").validatebox('remove');
+			}
+			
+			function delyanzheng2(){
+				/*destroy把元素和验证都一块删除,所以不符合逻辑
+				$("#addValidate2").validatebox('destroy');
+				*/
+				//delRules('addValidate2')
+				$("#addValidate2").validatebox('remove');
+			}
+
+
+			$(function(){
+				//为字段添加验证
+				$('#uiform input').each(function () {
+					if ($(this).attr('required') || $(this).attr('validType'))
+					$(this).validatebox();
+				})
+
+				$('#uiform textarea').each(function () {
+					if ($(this).attr('required') || $(this).attr('validType'))
+					$(this).validatebox();
+				})
+
+				$('#uiform select').each(function () {
+					if ($(this).attr('required') || $(this).attr('validType'))
+					$(this).validatebox();
+				})
+				
+				
+					
+				/*
+				$('#ff').form({
+					url:'/demo7/ProcessServlet',
+					onSubmit:function(){
+						return $(this).form('validate');
+					},
+					success:function(data){
+						alert(data);
+					}
+				});
+				*/
+				
+				
+
+				$("#uiform").submit(function(){
+					
+					if(!$("#uiform").form('validate')){
+						return false ;
+					}
+				});
+				 
+			});
+		</script>
+	</head>
+	<body>
+		<form action="bbb.action" id="uiform" method="post">
+			<table  >
+				<tr>
+					<td>
+						登录名：
+					</td>
+					<td>
+						<input  id="txtUsername" name="txtUsername" required="true" type="text" class="txt03" />
+					</td>
+					<td>
+						真实姓名：
+					</td>
+					<td>
+						<input id="txtTruename" required="true" validType="CHS"  type="text"
+							class="txt03" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						动态加验证
+					</td>
+					<td>
+						<input id="addValidate"  type="text" />
+					</td>
+					<td>
+						动态加验证2
+					</td>
+					<td>
+						<input id="addValidate2" type="text" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<input type="button" value="加验证" onclick="yanzheng()"/>
+					</td>
+					<td colspan="2">
+						<input type="button" value="加验证2" onclick="yanzheng2()"/>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<input type="button" value="删除验证" onclick="delyanzheng()"/>
+					</td>
+					<td colspan="2">
+						<input type="button" value="删除验证2" onclick="delyanzheng2()"/>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<input type="submit" value="提交"/>
+					</td>
+					<td colspan="2">
+						<input type="reset" value="重置"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>

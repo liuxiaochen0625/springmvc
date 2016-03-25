@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>test</title>
+<!--EasyUI Start-->
+<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+<!--EasyUI end-->
+<link href="css/vinSwfUpload-1.2-skin.css" rel="stylesheet" type="text/css"/>
+<link href="css/vinSwfUpload-1.2.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="core/SWFUpload-2.2.js"></script>
+<script type="text/javascript" src="vinSWFUpload-1.2.js"></script>
+
+<script type="text/javascript">
+	/**
+	 * 删除行
+	 * @param {Object} rowIndex 行位置
+	 */
+	function delRow(rowIndex){
+		$.messager.confirm('提示','确认删除吗？',function(btn){
+			if(btn){
+				$("#uploadDataGrid").datagrid("deleteRow",rowIndex);
+			}
+		})
+		
+	}
+	
+	/**
+	 * 返回上传数据
+	 */
+	function getData(){
+		var rows = $("#uploadDataGrid").datagrid('getRows');
+		return rows;
+	}
+	
+	
+$(function(){
+	var data= {
+			total:6,
+			rows:[
+				{sid:'1321961083973',objId:'demo',attachmentName:'test'},
+				{sid:'1321961101445',objId:'demo',attachmentName:'easyui培训'},
+				{sid:'1321961095318',objId:'demo',attachmentName:'jequery培训'},
+				{sid:'1321961107800',objId:'demo',attachmentName:'测试'},
+				{sid:'1321961115165',objId:'demo',attachmentName:'easyui培训1'},
+				{sid:'1321961120721',objId:'demo',attachmentName:'平台培训文档'}
+			]
+	};
+	 $("#uploadDataGrid").datagrid({
+	 	/*frozenColumns:[
+			[
+				{field:'ck',checkbox:true}
+			]
+		],*/
+		fitColumns:true,
+		idField:'sid',
+		width:500,
+		singleSelect:true,
+	 	columns:[
+			[
+				{field:'sid',title:'sid',hidden:true},
+				{field:'objId',title:'objId',hidden:true},
+				{field:'attachmentName',title:'文件名称',width:200},
+				{field:'opt',title:'操作',width:150,formatter:function(value,rowData,rowIndex){
+					var a = '<a href="javascript:delRow('+rowIndex+')">删除</a>';
+					return a ;
+				}}
+			]
+		]
+	 })
+	  $("#uploadDataGrid").datagrid('loadData',data);
+	 
+	 // 文档就绪
+	 $("#vinEdit").vinSWFUpload({
+		width:500,
+		heigth:300,
+		hideStopBt:false,
+		flashURL:"core/SWFUpload.swf"
+	});
+	
+	
+});
+</script>
+</head>
+<body >
+	<table  id="uploadDataGrid"></table>
+	<div id="vinEdit"></div>
+</body>
+</html>

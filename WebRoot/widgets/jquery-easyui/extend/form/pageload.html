@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>页面加载提示</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<!--EasyUI工具类-->
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushXml.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJScript.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJava.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shThemeDefault.css"/>
+	<script type="text/javascript">
+		SyntaxHighlighter.config.clipboardSwf = '../../../syntax-highlighter/scripts/clipboard.swf';
+		SyntaxHighlighter.all();
+	</script>
+</head>
+<body>
+		<script type="text/javascript">
+			ZBXTools.showProcess('页面正在加载，请稍等....');
+		</script>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.页面加载提示主要是为了阻止页面没有加载完成而用户进行了一些操作，而出现丢失数据等情况。<br/>
+		其次也为了防止页面加载太慢页面没有任何提示，导致用户误以为程序出错，以改进用户体验。
+		3.例子中用到的方法，是我对easyui方法进行了简单的封装，具体方法的用法见zbxtools.js文件
+		<br/><br/><br/>
+		使用说明:<br/>
+		1.&lt;body&gt;标签后即所有代码前使用ZBXTools.showProcess(msg)方法显示进度条
+		<pre class="brush:javascript;toolbar:false">
+				ZBXTools.showProcess('页面正在加载，请稍等....');
+		</pre>
+		<br/>
+		2.页面&lt;/body&gt;前,即所有代码后调用ZBXTools.hideProcess()方法，隐藏进度条
+		<br/>
+		<pre class="brush:javascript;toolbar:false">
+			 $(document).ajaxComplete(function(event,request, settings){
+			   ZBXTools.hideProcess();
+			 });
+		</pre>
+		<br/>
+		<script type="text/javascript">
+			/*有ajax时使用
+		 	$(document).ajaxComplete(function(event,request, settings){
+		   		ZBXTools.hideProcess();
+			});
+			*/
+			/*没有ajax时*/
+			$(document).ready(function(){
+				alert('为了效果起到阻断');
+				ZBXTools.hideProcess();
+			});
+			
+		</script>
+
+</body>
+</html>

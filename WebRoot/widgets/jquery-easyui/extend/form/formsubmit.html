@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>表单提交提示</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<!--EasyUI工具类-->
+	<script type="text/javascript" src="../../common/zbxtools.js"></script>
+	<script type="text/javascript" src="../../syntax-highlighter/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../syntax-highlighter/scripts/shBrushXml.js"></script>
+	<script type="text/javascript" src="../../syntax-highlighter/scripts/shBrushJScript.js"></script>
+	<script type="text/javascript" src="../../syntax-highlighter/scripts/shBrushJava.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../syntax-highlighter/styles/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="../../syntax-highlighter/styles/shThemeDefault.css"/>
+	<script type="text/javascript">
+		SyntaxHighlighter.config.clipboardSwf = '../../lib/syntax-highlighter/scripts/clipboard.swf';
+		SyntaxHighlighter.all();
+		
+		/**
+		 *表单提交 
+		 **/
+		function doSumbit(){
+			//按钮不可用 
+			ZBXTools.disableButton("#sumbitBtn,#resetBtn");
+			ZBXTools.showProcess("正在提交数据请等待.....");
+			/*表单提交代码
+			$('#addrForm').form('sumit',{
+				//属性....
+			})
+			*/
+			
+			setTimeout("hide()",5000);
+		}
+		
+		/**
+		 *隐藏进度条按钮可用
+		 **/
+		function hide(){
+			//按钮可用 
+			ZBXTools.enableButton("#sumbitBtn,#resetBtn");
+			ZBXTools.hideProcess();
+		}
+		
+		
+		/**
+		 *表单重置 
+		 **/
+		function doReset(){
+			$("#addrForm")[0].reset();
+		}
+		
+	</script>
+</head>
+<body>
+	<h2>效果</h2>
+	<div title="新地址信息" class="easyui-panel">
+			<form id="addrForm" name="addrForm" action="test.action" method="post">
+				<table>
+					<tr>
+						<td align="right">
+							地址：
+						</td>
+						<td>
+							<input name="address" id="address" class="easyui-validatebox"
+								required="true" type=text style="width: 400px;" value="test">
+							<span style="color: #FF0000">*</span>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							邮编：
+						</td>
+						<td>
+							<input name="zipCode" id="zipCode" class="easyui-validatebox"
+								required="true" type=text style="width: 400px;" validType="ZIP">
+							<span style="color: #FF0000">*</span>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							联系人：
+						</td>
+						<td>
+							<input name="linkName" id="linkName" class="easyui-validatebox"
+								required="true" type=text style="width: 400px;" validType="CHS">
+							<span style="color: #FF0000">*</span>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							手机号码：
+						</td>
+						<td>
+							<input name="linkPhone" id="linkPhone" class="easyui-validatebox"
+								required="true" type=text style="width: 400px;"
+								validType="mobile">
+							<span style="color: #FF0000">*</span>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							Email：
+						</td>
+						<td>
+							<input name="email" id="email" class="easyui-validatebox"
+								validType="email" required="true" type=text
+								style="width: 400px;">
+							<span style="color: #FF0000">*</span>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							默认地址：
+						</td>
+						<td>
+							<select name="ifDefaultAddr" id="ifDefaultAddr" required="true"
+								style="width: 50px;">
+								<option value="1">
+									否
+								</option>
+								<option value="2">
+									是
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+						<a class="easyui-linkbutton" id="sumbitBtn" iconCls="icon-reload"  onclick="doSumbit();">提交</a>
+						<a class="easyui-linkbutton" id="resetBtn" iconCls="icon-reload" onclick="doReset()">重置</a>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	<hr/>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.此功能主要用于页面提交后，后台反应太慢，而导致客户重复点击提交，并且加强客户体验<br/>
+		3.例子中用到的方法，是我对easyui方法进行了简单的封装，具体方法的用法见zbxtools.js文件
+	</p>
+	<p>
+		使用说明:<br/>
+		1.在表单提交前，调用ZBXTools.disableButton(selector)方法让按钮不可用，然后调用ZBXTools.showProcess(msg)方法显示进度条
+		<pre class="brush:javascript;toolbar:false">
+			ZBXTools.disableButton("#sumbitBtn,#resetBtn");
+			ZBXTools.showProcess("正在提交数据请等待.....");
+			/*表单提交代码
+			$('#addrForm').form('sumit',{
+				//属性....
+			})
+			*/
+		</pre>
+		<br/>
+		2. 表单提交如果发生错误，是应该再允许提交并且隐藏进度条的。此处需要调用ZBXTools.enableButton()方法和ZBXTools.hideProcess()方法
+		<br/>
+		<pre class="brush:javascript;toolbar:false">
+			ZBXTools.enableButton("#sumbitBtn,#resetBtn");
+			ZBXTools.hideProcess();
+		</pre>
+	</p>
+</body>
+</html>

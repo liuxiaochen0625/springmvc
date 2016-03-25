@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+	<head>
+		<title>easyui通过js来验证</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=uft-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+		<!--EasyUI Start-->
+		<link rel="stylesheet" type="text/css" href="../themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../themes/icon.css">
+		<script type="text/javascript" src="../jquery-1.6.min.js"></script>
+		<script type="text/javascript" src="../jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../locale/easyui-lang-zh_CN.js"></script>
+		<!--EasyUI end-->
+		<script type="text/javascript">
+		
+			//验证扩展
+			$.extend($.fn.validatebox.defaults.rules, {
+				CHS: {
+					validator: function (value, param) {
+						return /^[\u0391-\uFFE5]+$/.test(value);
+					},
+					message: '请输入汉字'
+				},
+				minLength:{
+					validator:function(value,param){
+						return value.length >=param[0]
+					},
+					message:'至少输入{0}个字'
+				},
+				maxLength:{
+					validator:function(value,param){
+						return value.length<=param[0]
+					},
+					message:'最多{0}个字'
+				},
+				range:{
+					validator:function(value,param){
+						if(/^[1-9]\d*$/.test(value)){
+							return value >= param[0] && value <= param[1]
+						}else{
+							return false;
+						}
+					},
+					message:'输入的数字在{0}到{1}之间'
+				},
+				//select即选择框的验证
+				selectValid:{
+					validator:function(value,param){
+						if(value == param[0]){
+							return false;
+						}else{
+							return true ;
+						}
+					},
+					message:'请选择'
+				}
+			});
+
+
+			$.extend($.fn.validatebox.methods, {
+				remove:function(jq){
+					//console.error("ddd",jq[0])
+					var v = jq[0] ;
+					if($.data(v,'validatebox')){
+						$.data(v,'validatebox').options={};
+						$.data(v,'validatebox').tip=null;
+						$(v).removeClass('validatebox-invalid');
+					}
+				}
+			});
+
+
+			//删除验证
+			function delyanzheng(){
+				$("#sheng").validatebox('remove');
+				$("#shi").validatebox('remove');
+			}
+
+			
+
+			
+
+			$(function(){
+				//为字段添加验证
+			
+				//登录名
+				$("#txtUsername").validatebox({
+					required:true
+				});
+
+				//真实姓名
+				$("#txtTruename").validatebox({
+					required:true,
+					validType:'CHS'
+				});
+				
+				//最少个数
+				$("#zuishaogeshu").validatebox({
+					required:true,
+					validType:'minLength[6]'
+				});
+
+				//最多个数
+				$("#zuiduogeshu").validatebox({
+					required:true,
+					validType:'maxLength[10]'
+				});
+
+				//个数范围
+				$("#geshufanwei").validatebox({
+					required:true,
+					validType:'length[2,10]'
+				});
+
+				//整数范围
+				$("#zhengshufanwei").validatebox({
+					required:true,
+					validType:'range[18,100]'
+				});
+
+				
+				//省
+				$("#sheng").validatebox({
+					required:true
+					//validType:"selectValid[0]"
+				});
+
+				//市
+				$("#shi").validatebox({
+					validType:"selectValid['ceshi']"
+				});
+				
+				$("#uiform").submit(function(){
+					
+					if(!$("#uiform").form('validate')){
+						return false ;
+					}
+				});
+				 
+			});
+		</script>
+	</head>
+	<body>
+		<form action="bbb.action" id="uiform" method="post">
+			<table  >
+				<tr>
+					<td>
+						登录名：
+					</td>
+					<td>
+						<input  id="txtUsername" name="txtUsername"  type="text" class="txt03" />
+					</td>
+					<td>
+						真实姓名：
+					</td>
+					<td>
+						<input id="txtTruename"  type="text" class="txt03" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						最少个数：
+					</td>
+					<td>
+						<input  id="zuishaogeshu" name="zuishaogeshu" type="text"  />
+					</td>
+					<td>
+						最多个数：
+					</td>
+					<td>
+					<input id="zuiduogeshu" name="zuiduogeshu" type="text" class="txt03" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						个数范围:
+					</td>
+					<td>
+						<input id="geshufanwei" name="geshufanwei" type="text" class="txt03" />
+					</td>
+					<td>
+						整数范围:
+					</td>
+					<td>
+					<input id="zhengshufanwei" name="zhengshufanwei"  type="text" class="txt03" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						动态加验证
+					</td>
+					<td>
+						<input id="addValidate"  type="text" />
+					</td>
+					<td>
+						动态加验证2
+					</td>
+					<td>
+						<input id="addValidate2" type="text" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						省：
+					</td>
+					<td>
+						<select id="sheng">
+							<option value="">--请选择--</option>
+							<option value="山西">山西</option>
+							<option value="山西">甘肃</option>
+						</select>
+					</td>
+					<td>
+						市：
+					</td>
+					<td>
+						<select id="shi">
+							<option value="ceshi">--请选择--</option>
+							<option value="山西">大同</option>
+							<option value="山西">西峰</option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td colspan="4">
+						<input type="button" value="删除验证" onclick="delyanzheng()"/>
+					</td>
+					
+				</tr>
+				<tr>
+					<td colspan="2">
+						<input type="submit" value="提交"/>
+					</td>
+					<td colspan="2">
+						<input type="reset" value="重置"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>

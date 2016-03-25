@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>combotree异步树</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushXml.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJScript.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJava.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shThemeDefault.css"/>
+	<script type="text/javascript">
+		SyntaxHighlighter.config.clipboardSwf = '../../../syntax-highlighter/scripts/clipboard.swf';
+		SyntaxHighlighter.all();
+		
+		$(function(){
+		    $('#cc').combotree({
+				//初次加载数据指定的url  
+		        url:'${ctx}/dict/pub/dict-tree-box!closedTree.action?cateEname=source&id=0',
+		        onBeforeExpand:function(node,param){
+		        	if(node){
+						//当点击父节点时，改变原始的地址，把当前节点id传递过去
+		        		$('#cc').combotree('options').url='${ctx}/dict/pub/dict-tree-box!closedTree.action?cateEname=source&id='+node.id;
+		        	}
+		        }
+		    });
+	   });
+		
+	</script>
+</head>
+<body>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.此功能主要是下拉列表树数据异步加载功能，即展开下来列表时只显示最高一级，当点击一个父节点时，根据当前的id去取子节点的数据。以减少页面加载时间<br/>
+		3.后台返回的数据中，如果节点中有子节点就应该设置该节点的state属性，如果没有子节点即叶子节点不应该有state属性
+		4.异步的tree和此原理一样，大家根据需要可以进行参考
+	</p>
+	<p>
+		使用说明:<br/>
+		1.js代码如下：<br/>
+		<pre class="brush:javascript;toolbar:false">
+			$('#cc').combotree({
+				//初次加载数据指定的url  
+		        url:'${ctx}/dict/pub/dict-tree-box!closedTree.action?cateEname=source&id=0',
+		        onBeforeExpand:function(node,param){
+		        	if(node){
+						//当点击父节点时，改变原始的地址，把当前节点id传递过去
+		        		$('#cc').combotree('options').url='${ctx}/dict/pub/dict-tree-box!closedTree.action?cateEname=source&id='+node.id;
+		        	}
+		        }
+		    });
+		</pre>
+		<br/>
+		2.java代码如下：(java代码仅供参考，根据具体的业务进行修改)<br/>
+		<pre class="brush:java;toolbar:false">
+			public String closedTree() throws Exception {
+			String id = Struts2Utils.getRequest().getParameter("id");
+			if(id == null){
+				id = "0";
+			}
+			System.out.println("传递过来的id"+id+cateEname);
+			List<TreeNode> treeNodes = new ArrayList<TreeNode>();
+			List<DataItem> list = dataItemManager.getDataItemSubList(cateEname,id);
+			for (DataItem dataItem : list) {
+				TreeNode treeNode = new TreeNode();
+				treeNode.setId(dataItem.getItemValue());
+				treeNode.setText(dataItem.getItemText());
+				String subFatherValue = dataItem.getItemValue();
+				List<DataItem> subList = dataItemManager.getDataItemSubList(cateEname,
+						subFatherValue);
+				//如果有子节点就设置state属性，即节点为文件夹，如果没有就不要设置state属性
+				if(subList!=null&&subList.size()>0){
+					treeNode.setState("closed");
+				}
+				treeNodes.add(treeNode);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.getSerializationConfig().setSerializationInclusion(
+					Inclusion.NON_NULL);
+			// 设置输入时忽略JSON字符串中存在而Java对象实际没有的属性
+			mapper.getDeserializationConfig()
+					.set(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
+							false);
+			String jsonData = mapper.writeValueAsString(treeNodes);
+			
+			Struts2Utils.getResponse().getWriter().write(jsonData);
+			return null;
+		}
+		</pre>
+	</p>
+</body>
+</html>

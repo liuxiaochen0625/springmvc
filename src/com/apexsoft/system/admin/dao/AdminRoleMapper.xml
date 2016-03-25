@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apexsoft.system.admin.dao.AdminRoleMapper">
+    
+    
+    <!-- 根据菜单ＩＤ查询菜单权限详细信息 -->
+    <select id="getMenuAuthByMenuID" resultType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        select * from admin_menu_authority where menuID=#{menuID}       
+    </select>
+    
+    <!-- 修改菜单权限 -->
+    <update id="updateMenuAuthority" parameterType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        update admin_menu_authority
+        set updateTime=#{updateTime},
+            menuName=#{menuName},
+            menuURL=#{menuURL},
+            menuLevel=#{menuLevel},
+            parentMenuID=#{parentMenuID},
+            menuOrder=#{menuOrder},
+            operator=#{operator}
+        where menuID=#{menuID}
+    </update>
+    
+    <!-- 新增菜单权限 -->
+    <insert id="addMenuAuthority" parameterType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        insert into admin_menu_authority(menuName,menuURL,menuLevel,parentMenuID,menuOrder,operator,createTime)
+        values(#{menuName},#{menuURL},#{menuLevel},#{parentMenuID},#{menuOrder},#{operator},#{createTime})
+    </insert>
+     
+    <!-- 查询菜单权限对应的按钮权限 -->
+    <select id="getOpListByMenuID" resultType="com.apexsoft.system.admin.entity.AdminOperatorAuthority">
+        select * from admin_operator_authority
+        <where>
+           <if test="menuID!=null and menuID>0">
+              and menuID=#{menuID}
+           </if>
+        </where>
+    </select>
+    
+    <!--取得所有角色及对应的权限-->
+    <select id="getAllAdminUserAuthority" resultType="com.apexsoft.system.admin.entity.AdminRole">
+        select a.roleCode, c.menuURL as roleOperatorURL
+          from admin_role a 
+          join admin_role_menu_authority b  on a.roleID=b.roleID
+          join admin_menu_authority c on b.menuID=c.menuID 
+          where c.menuLevel=2
+        union
+        select aa.roleCode, cc.operatorURL as roleOperatorURL
+          from admin_role aa
+          join admin_role_operator_authority bb on aa.roleID=bb.roleID
+          join admin_operator_authority cc on bb.operatorID=cc.operatorID
+    </select>
+    <!-- 查询用户拥有的角色 -->
+    <select id="getUserRolesByUserID" resultType="com.apexsoft.system.admin.entity.AdminRole">
+        select c.*
+        from admin_user a
+        join admin_user_role b on a.userID=b.userID
+        join admin_role c on b.roleID = c.roleID
+        where a.userID=#{userID}
+    </select>
+    
+    <!-- 查询用户的菜单权限列表 -->
+    <select id="getLoginMenuAuthorityList" resultType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        select c.*
+          from admin_user_role a
+          join admin_role_menu_authority b on a.roleID=b.roleID
+          join admin_menu_authority c on b.menuID=c.menuID
+        <where>
+          <if test="userID!=null and userID>0">
+              and a.userID=#{userID}
+          </if>
+        </where>  
+        UNION
+        select dd.* from admin_menu_authority dd
+          join (select cc.parentMenuID
+          from admin_user_role aa
+          join admin_role_menu_authority bb on aa.roleID=bb.roleID
+          join admin_menu_authority cc on bb.menuID=cc.menuID
+        <where>
+           <if test="userID!=null and userID>0">
+              and aa.userID=#{userID}
+           </if>
+        </where>  
+        ) ee  on ee.parentMenuID=dd.menuID
+    </select>
+    <!--查询所有的菜单权限列表 -->
+    <select id="getAllMenuList" resultType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        select * from admin_menu_authority
+    </select>
+    
+    <!-- 查询所有的角色 -->
+    <select id="getAllRoleList" resultType="com.apexsoft.system.admin.entity.AdminRole">
+        select * from admin_role order by createTime 
+    </select>
+    
+    <!-- 查询用户所有的角色 -->
+    <select id="getAllRoleListByUserID" resultType="com.apexsoft.system.admin.entity.AdminRole">
+        select b.* from admin_user_role a
+          join admin_role b ON a.roleID=b.roleID
+        <where>
+          <if test="userID!=null and userID>0">
+              and a.userID=#{userID}
+          </if>
+        </where>
+    </select>
+    
+    <!-- 删除用户的所有角色 -->
+    <delete id="delUserRoleByUserID">
+        delete from admin_user_role where userID=#{userID}
+    </delete>
+    
+    <!-- 新增用户的角色 -->
+    <insert id="addUserRole">
+        insert into admin_user_role(userID,roleID)
+        values(#{userID},#{roleID})
+    </insert>
+    <!-- 查询角色对应的菜单权限 -->
+    <select id="getRoleMenuListByRoleID" resultType="com.apexsoft.system.admin.entity.AdminMenuAuthority">
+        select a.roleID,b.* from admin_role_menu_authority a
+        join admin_menu_authority b on a.menuID=b.menuID
+        <where>
+            <if test="roleID!=null and roleID>0">
+               and a.roleID=#{roleID}
+            </if>
+        </where>
+    </select>
+    <!-- 查询菜单对应的按钮权限 -->
+    <select id="getMenuOPListByMenuID" resultType="com.apexsoft.system.admin.entity.AdminOperatorAuthority">
+        select * from admin_operator_authority
+        <where>
+             <if test="menuID!=null and menuID>0">
+                and  menuID=#{menuID}
+             </if>
+        </where>
+    </select>
+    
+    <!-- 查询角色菜单权限上对应的按钮权限 -->
+    <select id="getRoleMenuOpByRoleIDAndMenuID" resultType="com.apexsoft.system.admin.entity.AdminOperatorAuthority">
+        select b.* from admin_role_operator_authority a 
+        join admin_operator_authority b on a.operatorID=b.operatorID
+        <where>
+             <if test="roleID!=null and roleID>0">
+                and a.roleID=#{roleID}
+             </if>
+             <if test="menuID!=null and menuID>0">
+                and b.menuID=#{menuID}
+             </if>
+        </where>
+    </select>
+    <!-- 删除某个角色对应某个菜单权限上所有的按钮权限 -->
+    <delete id="delRoleMenuOpByRoleIDAndMenuID">
+        delete from admin_role_operator_authority
+        <where>
+             <if test="roleID!=null and roleID>0">
+                and roleID=#{roleID}
+             </if>
+             <if test="menuID!=null and menuID>0">
+                and menuID=#{menuID}
+             </if>
+        </where>
+    </delete>
+    
+    <!-- 新增某个角色对应某个菜单上对应的某个按钮权限 -->
+    <insert id="addRoleMenuOp">
+        insert into admin_role_operator_authority(roleID,menuID,operatorID)
+        values(#{roleID},#{menuID},#{operatorID})
+    </insert>
+    
+    <!-- 删除某个角色对应的所有菜单权限 -->
+    <delete id="delRoleMenuByRoleID">
+        delete from admin_role_menu_authority
+        <where>
+           <if test="roleID!=null and roleID > 0">
+              and roleID=#{roleID}
+           </if>
+        </where>
+    </delete>
+    <!-- 新增角色对应的菜单权限 -->   
+    <insert id="addRoleMenu">
+        insert into admin_role_menu_authority(roleID,menuID)
+        values(#{roleID},#{menuID})
+    </insert>
+</mapper>

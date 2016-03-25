@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>静态省市级联</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushXml.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJScript.js"></script>
+	<script type="text/javascript" src="../../../syntax-highlighter/scripts/shBrushJava.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="../../../syntax-highlighter/styles/shThemeDefault.css"/>
+	<script type="text/javascript">
+		SyntaxHighlighter.config.clipboardSwf = '../../../syntax-highlighter/scripts/clipboard.swf';
+		SyntaxHighlighter.all();
+	</script>
+</head>
+<body>
+	<h2>效果</h2>
+	<table class="datagrid-body" >
+	<tr class="Deprecated">
+				<td class="datagrid-header">所在省份</td>
+				<td>
+				<select id="province" name="province" style="width:200px;">	</select>	
+				</td>
+			</tr>		
+			<tr class="Deprecated">
+				<td class="datagrid-header">所在地区</td>
+				<td>
+				<select id="city" name="city" style="width:200px;">	</select>
+				</td>
+			</tr>
+	</table>
+	<hr/>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.此例子时基于json静态数据的省市二级级联，可以根据实际情况进行三级、四级的扩展。<br/>
+		3.在data文件夹中放的是省和市的所有数据
+	</p>
+	<p>
+		使用说明:<br/>
+		1.添加select的html标签
+		<pre class="brush:html;toolbar:false">
+			<select id="province" name="province" style="width:200px;">	</select>	
+			<select id="city" name="city" style="width:200px;">	</select>
+		</pre>
+		<br/>
+		2. 初始化select为easyui的combobox组件，并初始化省的数据。
+		<br/>
+		<pre class="brush:javascript;toolbar:false">
+			/**
+			 *初始化省和市为combobox
+			 **/
+			function initProviCity(){
+			//初始化省份列表
+			$('#province').combobox({
+					 url:'data/uni_province.json',
+					 valueField:'id',
+					 editable:false,
+					 textField:'text',
+					 onChange :function(){reloadCity();}//值改变时动态修改市的数据
+			});
+			
+		 	//初始化市列表
+			//var provinceTmp = $('#province').combobox('getValue');
+			//var cityUrlTmp = "data/city/"+provinceTmp+".json"
+			$('#city').combobox({
+				 //url:cityUrlTmp,//因为初始化话时此处没有值，所以不需要制定url	    
+				 valueField:'id',
+				 textField:'text',
+				 data:[],
+				 editable:false
+			});		
+		}
+		</pre>
+		<br/>
+		3. 在省的值改变时，修改市的记录，调用reloadCity()方法<br/>
+		<pre class="brush:javascript;toolbar:false">
+			//根据选中的省份，动态构造城市下拉列表	
+			function reloadCity(){
+					var provinceTmp = $('#province').combobox('getValue');
+					var cityUrlTmp = "data/city/"+provinceTmp+".json"
+					$('#city').combobox('clear');
+					if(provinceTmp.length>0){			
+						$('#city').combobox('reload',cityUrlTmp);	
+					}else{
+						$('#city').combobox('loadData',[]);
+					}
+			}
+		</pre>
+	</p>
+	<script type="text/javascript">
+		/**
+		 *初始化省和市为combobox
+		 **/
+		function initProviCity(){
+			//初始化省份列表
+			$('#province').combobox({
+					 url:'data/uni_province.json',
+					 valueField:'id',
+					 editable:false,
+					 textField:'text',
+					 onChange :function(){reloadCity();}//值改变时动态修改市的数据
+			});
+			
+		 	//初始化市列表
+			//var provinceTmp = $('#province').combobox('getValue');
+			//var cityUrlTmp = "data/city/"+provinceTmp+".json"
+			$('#city').combobox({
+				 //url:cityUrlTmp,//因为初始化话时此处没有值，所以不需要制定url	    
+				 valueField:'id',
+				 textField:'text',
+				 data:[],
+				 editable:false
+			});		
+		}
+		
+		//根据选中的省份，动态构造城市下拉列表	
+		function reloadCity(){
+				var provinceTmp = $('#province').combobox('getValue');
+				var cityUrlTmp = "data/city/"+provinceTmp+".json"
+				$('#city').combobox('clear');
+				if(provinceTmp.length>0){			
+					$('#city').combobox('reload',cityUrlTmp);	
+				}else{
+					$('#city').combobox('loadData',[]);
+				}
+		}
+	
+		$(function(){
+			initProviCity();
+			/*修改时使用
+			$('#province').combobox('setValue','110000');//北京市
+			$('#city').combobox('setValue','110108');//海淀区
+			*/
+		});
+	</script>
+</body>
+</html>

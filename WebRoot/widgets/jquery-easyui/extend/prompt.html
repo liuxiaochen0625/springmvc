@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Prompt扩展</title>
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../themes/icon.css">
+	<script type="text/javascript" src="../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<script type="text/javascript" src="../../lib/syntax-highlighter/scripts/shCore.js"></script>
+	<script type="text/javascript" src="../../lib/syntax-highlighter/scripts/shBrushXml.js"></script>
+	<script type="text/javascript" src="../../lib/syntax-highlighter/scripts/shBrushJScript.js"></script>
+	<link type="text/css" rel="stylesheet" href="../../lib/syntax-highlighter/styles/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="../../lib/syntax-highlighter/styles/shThemeDefault.css"/>
+	<script type="text/javascript">
+		SyntaxHighlighter.config.clipboardSwf = '../../lib/syntax-highlighter/scripts/clipboard.swf';
+		SyntaxHighlighter.all();
+	</script>
+	<script type="text/javascript">
+		function prompt1(){
+			$.messager.prompt('标题','提示内容',function(txt){
+				if(txt){
+					$.messager.alert('提示','你输入的值为: <span style="font-weight:bold;color:red;">'+txt+'</span>');
+				}
+			});
+			//设置默认值
+			$(".messager-input").val("默认值");
+		}
+	</script>
+	
+</head>
+<body>
+	<h2>效果</h2>
+	<div>
+		<a href="#" class="easyui-linkbutton" onclick="prompt1()">Prompt</a>
+	</div>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		2.因为默认的$.messager.prompt()方法不能指定默认值,而此扩展主要是为prompt提供默认值<br/>
+	</p>
+	<p>
+		使用说明:<br/>
+		1.只需要在$.messager.prompt()方法方法后添加$(".messager-input").val("默认值");即可设置默认值
+		<pre class="brush:javascript;toolbar:false">
+				$.messager.prompt('标题','提示内容',function(txt){
+					alert(txt);
+				});
+				//设置默认值
+				$(".messager-input").val("默认值");
+		</pre>
+	</p>
+</body>
+</html>

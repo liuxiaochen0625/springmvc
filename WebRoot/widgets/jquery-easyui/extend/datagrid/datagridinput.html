@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>EasyUI数据表格扩展</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<!--EasyUI Start-->
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<script type="text/javascript" src="../../jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../../locale/easyui-lang-zh_CN.js"></script>
+	<!--EasyUI end-->
+	
+	<script type="text/javascript">
+			//标记原始值
+			var yuanshis = [];
+			
+			//列表
+			$(function() {
+				$('#editOutProList').datagrid({		
+					title:"数据列表可编辑采用input",	
+					url:'datagridinput.json',			
+					iconCls : 'icon-edit',
+					nowrap : false,
+					striped : true,
+					collapsible : false,
+					pagination : false,
+					singleSelect : true,
+					rownumbers : true,
+					remoteSort : false,
+					pageList : [15, 20, 30, 50 ],
+					idField : 'outProdId',
+					//列表加载成功后，记录可发数量(准备验证)
+					onLoadSuccess:function(data){
+						var rows = data.rows;
+						for(var i = 0 ;i<rows.length;i++){
+							var pro = "no"+rows[i].prodCode;
+							var obj = {};
+							obj.sendNumName = pro;
+							obj.sendNumVal = rows[i].sendNum;//加你的业务逻辑，值为数字就可以
+							obj.prodName = rows[i].prodName;
+							yuanshis.push(obj);
+						}
+					},
+					// 复制、粘贴
+					onRowContextMenu:function(e, rowIndex, rowData){
+						e.preventDefault();
+						$("#editOutProList").datagrid("selectRow",rowIndex);
+						$('#mm').menu('show', {
+							left: e.pageX,
+							top: e.pageY
+						});   
+					},
+					columns:[[ 
+						{field:'outProdId',title:'outProdId',width:100,sortable:false,nowrap:true,hidden:true},
+						{field:'prodCode',title:'药品编码',width:100,sortable:false,nowrap:true},
+						{field:'commName',title:'通用名',width:100,sortable:false,nowrap:true},
+						{field:'prodName',title:'商品名',width:100,sortable:false,nowrap:true},
+						{field:'memberName',title:'生产厂家',width:100,sortable:false,nowrap:true},
+						{field:'listName',title:'挂牌单位',width:100,sortable:false,nowrap:true},
+						{field:'priceUnitName',title:'单位',width:100,sortable:false,nowrap:true},
+						{field:'detail',title:'备注',width:100,sortable:false,nowrap:true},
+						{field:'orderNum',title:'订购数量',width:50,sortable:false,nowrap:true},
+						{field:'price',title:'成交价',width:50,sortable:false,nowrap:true},
+						{field:'atm',title:'金额',width:50,sortable:false,nowrap:true,
+							formatter:function(val,rec,rowIndex){
+								return "<span id='atm"+rowIndex+"'>"+val+"</span>";
+							}
+						},
+						{field:'sendNum',title:'实发数量',width:100,sortable:false,nowrap:true,
+							formatter:function(val,rec,rowIndex){
+								var testPro = "no"+rec.prodCode;
+								var defVal=rec.sendNum;
+								var txt="<input test="+testPro+" name='sendNum' class='easyui-numberbox' required='true' precision='0' min='1' max='"+defVal+"' title='发货数量不能大于"+defVal+"' value='"+defVal+"' style='width:90px;'/>";
+								return txt;
+							}
+						},
+						{field:'passCode',title:'批号',width:100,sortable:false,nowrap:true,
+							formatter:function(val,rec,rowIndex){
+								var defVal=rec.passCode;
+								var txt="<input name='passCode' class='easyui-validatebox' required='true' style='width:90px;' value='"+defVal+"'/>";
+								return txt;
+							}
+						},
+						{field:'limitDate',title:'有效期',width:100,sortable:false,nowrap:true,
+							formatter:function(val,rec,rowIndex){
+								var defVal=rec.limitDate;
+								var txt="<input name='limitDate' class='easyui-validatebox' required='true' style='width:90px;' value='"+defVal+"'/>";
+								return txt;
+							}
+						},
+						{field:'opt',title:'操  作',align:'center',width:50,
+							formatter : function(val, rowData,rowIndex) {
+								return "<a href=\"javascript:delRow("+rowIndex+")\">删除</a>";
+							}
+						}
+					]]
+				});
+				setTimeout(function(){
+					$.parser.parse(".datagrid-body");
+				},1500);
+			})
+			
+			var copyRow={};
+		
+			//复制
+			function copyRowFn(){
+				var t = $("#editOutProList").datagrid("getSelected");
+				t.outProdId= "";
+				copyRow = t
+			}
+			//粘贴
+			function plastRow(){
+				if(!$.isEmptyObject(copyRow)){
+					var r = $("#editOutProList").datagrid("getSelected");
+					var rIndex = $("#editOutProList").datagrid("getRowIndex",r);
+					$("#editOutProList").datagrid("insertRow",{"index":rIndex+1,"row":copyRow});
+					copyRow={};
+				}else{
+					$.messager.alert("错误","请复制一条记录！",'error');
+				}
+				
+			}
+			
+			//删 除
+			function delRow(rowIndex){
+				$.messager.confirm('系统提示','您确定要删除该信息吗？',function(btn){
+					if(btn){
+						$('#editOutProList').datagrid('deleteRow',rowIndex);
+					}
+				});
+			}
+			
+			//验证逻辑，不同的模块需要重写此方法
+			function yanzen(name,val){
+				var inputs =  $(":input[test='"+name+"']");
+				var vals = 0 ;
+				for( var i = 0 ; i<inputs.length;i++){
+					vals+=parseInt(inputs[i].value);
+				}
+				if(vals > val){
+					return false ; 
+				}else{
+					return true ;
+				}
+			}
+			
+			//生成提交数据，不同的业务需要重写此方法
+			function crateSumitData() {
+				var rows = $('#editOutProList').datagrid('getData').rows;//取到所有列
+				//为了关联修改input框
+				var sendNums = $(":input[name='sendNum']");
+				//为了关联修改input框
+				var passCodes = $(":input[name='passCode']");
+				//为了关联修改input框
+				var limitDates = $(":input[name='limitDate']");
+				//其他需要传递后台的值
+				var outId = $("#outId").val();
+				var str = "";
+				for ( var i = 0; i < rows.length; i++) {
+					var obj = rows[i];//取出每列所对应的对象
+					for (var dd in obj) {//取出对象中的属性
+						var vStr = "";
+						if(dd == 'sendNum'){
+							vStr = "editOutProList[" + i + "]."+dd+"=" + sendNums[i].value+ "&" //拼接成对象数据字符串
+						}else if(dd == 'passCode'){
+							vStr = "editOutProList[" + i + "]."+dd+"=" + passCodes[i].value+ "&" //拼接成对象数据字符串
+							
+						}else if(dd == 'limitDate'){
+							vStr = "editOutProList[" + i + "]."+dd+"=" + limitDates[i].value+ "&" //拼接成对象数据字符串
+						}else{
+							if(dd != 'opt' && dd != 'orderProdId'){
+								vStr = "editOutProList[" + i + "]."+dd+"=" + obj[dd]+ "&" //拼接成对象数据字符串
+							}
+						}
+						str += vStr;
+					}
+				}
+				str+="outId="+outId;
+				return str ;
+			}
+			
+			
+			//提交
+			function doSubmit(){
+				var rows = $('#editOutProList').datagrid('getData').rows ;
+				//必须有值才提交
+				if(rows.length >0 ){
+					for(var i=0 ;i<yuanshis.length;i++){
+						var obj = yuanshis[i];
+						//验证是否通过
+						if(yanzen(obj.sendNumName,obj.sendNumVal)){
+							continue;
+						}else{
+							$.messager.alert("系统提示","<span style='color:red;font-weight:bold;'>"+obj.prodName+"</span>业务验证错误","error");
+							return false ;
+						}
+					}
+					//form表单验证
+					if($('#editoutForm').form('validate')){
+						//取到需要提交的值
+						var str =  crateSumitData();
+						//alert(str);
+						$.messager.alert("提示","验证已经通过了，可以通过拼接成的字符串进行ajax提交了",'info');
+						/*
+						$.ajax({
+							type : "post",//请求方式
+							url : "rul",//发送请求地址
+							data : str,
+							//请求成功后的回调函数有两个参数
+							success : function(data, textStatus) {
+								var d = $.parseJSON(data);
+								if(d.flag == 'T'){
+									//正确时操作
+								}else{
+									$.messager.alert("错误","发货单更新错误","error");
+								}
+									
+								
+								}
+						});
+						*/
+					}
+				}else{
+					$.messager.alert('错误','没有数据不能提交！','error');
+				}
+			}
+			
+		</script>
+</head>
+<body>
+	<h2>效果</h2>
+	<form name="editoutForm" id="addoutForm" method="post" action="" >
+		<input type="hidden" id="outId" value="DD20111127120000"/>
+			<table id="editOutProList" border="1" cellpadding="0" cellspacing="0" width="100%"></table>
+			<div id="mm" class="easyui-menu" style="width:120px;">  
+ 				<div id="copyRow" onclick="copyRowFn()">复制</div>  
+    			<div class="menu-sep"></div>  
+    			<div id="plastRow" onclick="plastRow()">粘贴</div>  
+			</div>
+			<br/>
+			<center>
+				<a id ="nextStep" href="javascript:void(0);" class="easyui-linkbutton" iconCls="icon-reload"
+					onclick="doSubmit()">提交发货单</a>
+			</center>
+	</form>
+	<hr/>
+	<p>
+		注意：<br/>
+		<span style="color:#CC2222;font-weight:bold;">1.该系统中的例子都是基于jQuery-EasyUI的，所以确定正确引入EasyUI所需要的文件</span><br/>
+		<span style="color:#CC2222;font-weight:bold;">2.因为此处的可编辑表格不是EasyUI的标准写法，而是根据业务扩展的，所以非特殊要求不赞成使用</span><br/>
+		3.此功能主要用于在批量修改数据，并且允许对每条记录点击鼠标右键后进行复制和粘贴，并进行简单的输入验证和业务逻辑验证。此模块只做了简单的业务逻辑验证，所以使用时要根据自己的业务逻辑进行相应的方法重写<br/>
+		4.本功能的思路主要是把所有修改完得数据和原始的数据抽取出来，拼接成后台提交的字符串，完了进行ajax提交
+	</p>
+	<p>
+		使用说明:<br/>
+		1.本功能是基于EasyUI进行的datagrid扩展，请参考EasyUI的datagrid使用方法，在此不做重复说明。<br/>
+		2.该模块的常用方法说明如下：<br/>
+		2.1 copyRowFn()为列复制<br/>
+		2.2 plastRow()为列粘贴<br/>
+		2.3 delRow()为列删除<br/>
+		2.4 yanzen()为提交前进行逻辑判断，不同的业务需要重写此方法<br/>
+		2.5 crateSumitData()为生成提交数据，不同的业务需要重写此方法<br/>
+		2.6 doSubmit()表单提交方法，不同的业务需要重写此方法
+</body>
+</html>
